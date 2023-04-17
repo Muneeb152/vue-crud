@@ -12,60 +12,142 @@
           <v-toolbar-title class="white--text" 
             >Table Listing
           </v-toolbar-title>
+          <v-divider
+          class="mx-4"
+          inset
+          vertical
+        ></v-divider>
         <v-spacer></v-spacer>
-        <v-card-title class="mr-15">
-        </v-card-title>
-        <!---------Text Fields Used to Display Data in the Data Table----------->
-        <v-dialog v-model="dialog" max-width="500px" persistent>
+        <v-dialog
+          v-model="dialog"
+          max-width="500px"
+        >
+          <template v-slot:activator="{ props }">
+            <v-btn
+              color="primary"
+              dark
+              class="mb-2"
+              v-bind="props"
+            >
+              New Item
+            </v-btn>
+          </template>
           <v-card>
-            <v-divider></v-divider>
-            <br />
+            <v-card-title>
+              <span class="text-h5">fffas</span>
+            </v-card-title>
+
             <v-card-text>
               <v-container>
                 <v-row>
-                  <v-col cols="12" >
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
                     <v-text-field
-                      outlined
-                      dense
-                      persistent-hint
-                      v-model="donorDetail.u_id"
-                      label="Donor Id"
+                      v-model="getListingData.name"
+                      label="Dessert name"
                     ></v-text-field>
                   </v-col>
-                  
-                  <v-col cols="12" >
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
                     <v-text-field
-                      outlined
-                      dense
-                      persistent-hint
-                      v-model="donorDetail.blood_group"
-                      label="Blood Group"
+                      v-model="getListingData.calories"
+                      label="Calories"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
                     <v-text-field
-                      outlined
-                      dense
-                      persistent-hint
-                      v-model="donorDetail.name"
-                      label="Donor Name"
+                      v-model="getListingData.fat"
+                      label="Fat (g)"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12">
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
                     <v-text-field
-                      outlined
-                      dense
-                      persistent-hint
-                      v-model="donorDetail.city"
-                      label="Donor Address"
+                      v-model="editedItem.carbs"
+                      label="Carbs (g)"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
+                    <v-text-field
+                      v-model="getListingData.protein"
+                      label="Protein (g)"
                     ></v-text-field>
                   </v-col>
                 </v-row>
               </v-container>
             </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue-darken-1"
+                variant="text"
+                @click="close"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                color="blue-darken-1"
+                variant="text"
+                @click="save"
+              >
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
+              <v-btn color="blue-darken-1" variant="text" @click="deleteItemConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
           </v-card>
         </v-dialog>
       </v-toolbar>
+    </template>
+    <template v-slot:item.actions="{ item }">
+      <v-icon
+        size="small"
+        class="me-2"
+        @click="editItem(item.raw)"
+      >
+        mdi-pencil
+      </v-icon>
+      <v-icon
+        size="small"
+        @click="deleteItem(item.raw)"
+      >
+        mdi-delete
+      </v-icon>
+    </template>
+    <template v-slot:no-data>
+      <v-btn
+        color="primary"
+        @click="initialize"
+      >
+        Reset
+      </v-btn>
     </template>
   </v-data-table>
 </template>
@@ -86,17 +168,28 @@ export default {
         sortable: false,
         value: "id",
       },
-      // { text: "Id", value: "name", sortable: false },
       { text: "User Id", value: "userId",sortable: false, },
       { text: "Title", value: "title",  sortable: false,},
       { text: "Body", value: "body",  sortable: false,},
-      // { text: "City", value: "city"},
-      // { text: "Contact Number", value: "phone", sortable: false },
-      // { text: "Actions", value: "actions", sortable: false },
+      { text: "Actions", value: "actions",  sortable: false,},
     ],
     donorId: -1,
     editedIndex: -1,
     donorDetail: {},
+    editedItem: {
+        name: '',
+        calories: 0,
+        fat: 0,
+        carbs: 0,
+        protein: 0,
+      },
+      defaultItem: {
+        name: '',
+        calories: 0,
+        fat: 0,
+        carbs: 0,
+        protein: 0,
+      },
   }),
 
   computed: {
@@ -120,17 +213,6 @@ mounted()
 },
   methods: {
     ...mapActions(["fetchListingData"]),
-    save() {
-      if (this.editedIndex > -1) {
-        this.updateDonor({
-          donorIndex: this.editedIndex,
-          updatedData: this.donorDetail,
-        });
-      } else {
-        this.addDonor(this.donorDetail);
-      }
-      this.close();
-    },
 
     fetchData()
     {
@@ -147,6 +229,47 @@ mounted()
 
 
     },
+    editItem (item) {
+        this.editedIndex = this.getListingData.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialog = true
+      },
+
+      deleteItem (item) {
+        this.editedIndex = this.getListingData.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialogDelete = true
+      },
+
+      deleteItemConfirm () {
+        this.desserts.splice(this.editedIndex, 1)
+        this.closeDelete()
+      },
+
+      close () {
+        this.dialog = false
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        })
+      },
+
+      closeDelete () {
+        this.dialogDelete = false
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        })
+      },
+
+      save () {
+        if (this.editedIndex > -1) {
+          Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        } else {
+          this.desserts.push(this.editedItem)
+        }
+        this.close()
+      },
   },
 };
 </script>
