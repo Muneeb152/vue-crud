@@ -1,13 +1,22 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import Create from '../components/Create.vue'
+
 
 Vue.use(VueRouter)
 
-const routes = [{
+const routes = [
+    {
         path: '/',
         name: 'Listing',
         component: () => import("@/views/Listing.vue"),
     },
+    {
+        path: '/create',
+        name: 'Create',
+        component: Create,
+    },
+
 
 
 

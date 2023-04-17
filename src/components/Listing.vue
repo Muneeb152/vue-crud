@@ -24,12 +24,13 @@
         >
           <template v-slot:activator="{ props }">
             <v-btn
-              color="primary"
+              color="success"
               dark
               class="mb-2"
               v-bind="props"
+              @click="createNew"
             >
-              New Item
+              Create New
             </v-btn>
           </template>
           <v-card>
@@ -270,6 +271,10 @@ mounted()
         }
         this.close()
       },
+      createNew()
+    {
+      this.$router.push("/create")
+    },
   },
 };
 </script>
