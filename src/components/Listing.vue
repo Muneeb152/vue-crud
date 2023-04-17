@@ -3,7 +3,7 @@
     :headers="headers"
     :items="getListingData"
     :search="search"
-    sort-by="u_id"
+    sort-by="id"
     class="elevation-1 ma-3"
   >
     <template v-slot:top>
@@ -116,7 +116,6 @@ export default {
   },
 mounted()
 {
-    console.log("Mounted:"+this.getListingData)
   this.fetchData();
 },
   methods: {
@@ -135,26 +134,18 @@ mounted()
 
     fetchData()
     {
-      console.log("Fetch Data")
       this.fetchListingData().then(
           (response) => {
             if (response.status == 200) {
-               console.log("Response is:"+response);
-               console.log("Response is:"+this.getListingData);
-               //this.getListingData=response.data;
+              console.log(response);
             }
           },
           (error) => {
-            console.log("error::", error);
-            this.loader = false;
+            console.log("Error:", error);
           }
         );
 
 
-    },
-    chat()
-    {
-      this.$router.push("/Chat")
     },
   },
 };
