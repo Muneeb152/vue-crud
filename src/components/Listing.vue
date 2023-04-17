@@ -131,7 +131,7 @@
       <v-icon
         size="small"
         class="me-2"
-        @click="editItem(item.raw)"
+        @click="editItem(item)"
       >
         mdi-pencil
       </v-icon>
@@ -231,6 +231,7 @@ mounted()
 
     },
     editItem (item) {
+      console.log("Item is:"+item.title)
         this.editedIndex = this.getListingData.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
