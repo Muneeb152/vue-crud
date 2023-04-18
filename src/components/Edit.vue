@@ -7,7 +7,6 @@
                         <v-flex xs12 lg12 class="mb-4">
                             <h2 class="font-weight-medium"> Edit Record</h2>
                         </v-flex>
-                        <!--Name TextField-->
                         <v-flex xs12 lg12 class="mb-n1">
                             <v-text-field v-model="model.user.title" label="Title" type="text" outlined dense
                                 :rules="[() => !!model.user.title || 'This field is required']"></v-text-field>
@@ -20,19 +19,10 @@
                         <v-btn @click="goBack" class="me-4">
                             Back
                         </v-btn>
-                        <v-btn :disabled="!model.user.title || !model.user.body" @click="editRecord" class="white--text" color="primary">
+                        <v-btn :disabled="!model.user.title || !model.user.body" @click="editRecord" class="white--text"
+                            color="primary">
                             Save
                         </v-btn>
-                        <!-- <v-flex lg2 class=" mt-8 mr-n12">
-                            <v-btn :disabled="!model.user.title || !model.user.body" class="mt-n8 white--text" width="100" color="primary" link @click="editRecord">
-                                Save
-                            </v-btn>
-                        </v-flex>
-                        <v-flex lg2 class=" mt-8">
-                            <v-btn :disabled="!model.user.title || !model.user.body" class="mt-n8 white--text" width="100" color="primary" link @click="editRecord">
-                                Save
-                            </v-btn>
-                        </v-flex> -->
                     </v-layout>
                 </v-flex>
             </v-layout>
@@ -43,10 +33,6 @@
 import { mapActions, mapGetters } from "vuex";
 import axios from 'axios';
 export default {
-    // props:{
-    //     userObj
-
-    // },
     props: ['userObj'],
     data() {
         return {
@@ -68,10 +54,8 @@ export default {
     },
     methods:
     {
-        ...mapActions(["Registrations"]),
         editRecord() {
             axios.put(`https://jsonplaceholder.typicode.com/posts/${this.userObj.id}`, this.model.user).then(res => {
-                console.log(res.data);
                 alert("Record Edited Successfully");
             }).catch(function (error) {
                 alert(error);
@@ -80,8 +64,7 @@ export default {
         },
 
         goBack() {
-            this.$emit('goBack',false);
-            //this.$router.push("/")
+            this.$emit('goBack', false);
         },
     },
 };

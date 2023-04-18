@@ -7,7 +7,6 @@
                         <v-flex xs12 lg12 class="mb-4">
                             <h2 class="font-weight-medium"> Add New</h2>
                         </v-flex>
-                        <!--Name TextField-->
                         <v-flex xs12 lg12 class="mb-n1">
                             <v-text-field v-model="model.user.title" label="Title" type="text" outlined dense
                                 :rules="[() => !!model.user.title || 'This field is required']"></v-text-field>
@@ -16,12 +15,6 @@
                             <v-textarea v-model="model.user.body" name="input-7-1" outlined label="Body" auto-grow
                                 :rules="[() => !!model.user.body || 'This field is required']"></v-textarea>
                         </v-flex>
-                        <!-- <v-flex lg4 class=" mt-8 mr-n12">
-                            <v-btn :disabled="!model.user.title || !model.user.body" class="mt-n8 white--text" width="100" color="primary" link @click="newRegister">
-                                Save
-                            </v-btn>
-                        </v-flex> -->
-
                         <v-btn @click="goBack" class="me-4">
                             Cancel
                         </v-btn>
@@ -48,25 +41,13 @@ export default {
 
                 }
             },
-
-            emailRules: [
-                v => !!v || 'E-mail is required',
-                v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'E-mail must be valid',
-            ],
-            passwordRules: [
-                v => !!v || 'Password is required',
-                v => v.length >= 6 || "Min 6 characters",
-            ],
-
         };
     },
     computed:
     {
-        ...mapGetters(["getRegistrations"]),
     },
     methods:
     {
-        ...mapActions(["Registrations"]),
         newRegister() {
             axios.post('https://jsonplaceholder.typicode.com/posts', this.model.user).then(res => {
                 console.log(res.data);
