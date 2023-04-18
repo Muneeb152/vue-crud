@@ -59,7 +59,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue-darken-1" variant="text" @click="closeDelete">Cancel</v-btn>
-                  <v-btn color="blue-darken-1" variant="text" @click="deleteItemConfirm">OK</v-btn>
+                  <v-btn color="error" variant="text" @click="deleteItemConfirm">OK</v-btn>
                   <v-spacer></v-spacer>
                 </v-card-actions>
               </v-card>
@@ -70,14 +70,9 @@
           <v-icon size="small" class="me-2" @click="editItem(item)">
             mdi-pencil
           </v-icon>
-          <v-icon size="small" @click="deleteItem(item.raw)">
+          <v-icon size="small" @click="deleteItem(item)">
             mdi-delete
           </v-icon>
-        </template>
-        <template v-slot:no-data>
-          <v-btn color="primary" @click="initialize">
-            Reset
-          </v-btn>
         </template>
       </v-data-table>
     </div>
@@ -89,17 +84,18 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { mapActions, mapGetters } from "vuex";
 import Edit from '@/components/Edit.vue'
-
-
 
 export default {
   name: "Listing",
   components: { Edit },
   data: () => ({
     editComp: false,
-    userObj:{
+    userObj: {
+    },
+    delObj: {
     },
     dialog: false,
     search: "",
@@ -174,22 +170,44 @@ export default {
       console.log("Item is:" + item.title)
       this.editedIndex = this.getListingData.indexOf(item)
       this.editedItem = Object.assign({}, item);
-      this.userObj={};
-      this.userObj=item;
+      this.userObj = {};
+      this.userObj = item;
       console.log("Item 2 is:" + this.userObj.title)
-      this.editComp=true;
+      this.editComp = true;
       //this.dialog = true
     },
 
     deleteItem(item) {
       this.editedIndex = this.getListingData.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialogDelete = true
+      this.editedItem = Object.assign({}, item);
+      this.delObj=item;
+      console.log("Del ID:"+item.id)
+      this.dialogDelete = true;
     },
 
     deleteItemConfirm() {
-      this.desserts.splice(this.editedIndex, 1)
-      this.closeDelete()
+      // this.desserts.splice(this.editedIndex, 1)
+      // this.closeDelete()
+      this.dialogDelete = false;
+      axios.delete(`https://jsonplaceholder.typicode.com/posts/${this.delObj.id}`).then(res=>{
+            this.fetchData();
+            alert("User Deleted Successfully!");
+           
+                
+            }).catch(function(error){
+              this.dialogDelete = false;
+              if(error.response)
+          {
+            if(error.response.data.status==404)
+            {
+              alert(error.response.data.message);
+            }
+          }
+          else
+          {
+            console.log('Error',error.message)
+          }
+        });
     },
 
     close() {
@@ -219,12 +237,11 @@ export default {
     createNew() {
       this.$router.push("/create")
     },
-    handleEmit()
-    {
-      this.editComp=false;
+    handleEmit() {
+      this.editComp = false;
 
     },
-    
+
   },
 };
 </script>
