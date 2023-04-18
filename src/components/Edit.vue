@@ -16,11 +16,23 @@
                             <v-textarea v-model="model.user.body" name="input-7-1" outlined label="Body" auto-grow
                                 :rules="[() => !!model.user.body || 'This field is required']"></v-textarea>
                         </v-flex>
-                        <v-flex lg4 class=" mt-8 mr-n12">
-                            <v-btn :disabled="!model.user.title || !model.user.body" class="mt-n8 white--text" width="100" color="primary" link @click="newRegister">
+
+                        <v-btn @click="goBack" class="me-4">
+                            Back
+                        </v-btn>
+                        <v-btn :disabled="!model.user.title || !model.user.body" @click="editRecord" class="white--text" color="primary">
+                            Save
+                        </v-btn>
+                        <!-- <v-flex lg2 class=" mt-8 mr-n12">
+                            <v-btn :disabled="!model.user.title || !model.user.body" class="mt-n8 white--text" width="100" color="primary" link @click="editRecord">
                                 Save
                             </v-btn>
                         </v-flex>
+                        <v-flex lg2 class=" mt-8">
+                            <v-btn :disabled="!model.user.title || !model.user.body" class="mt-n8 white--text" width="100" color="primary" link @click="editRecord">
+                                Save
+                            </v-btn>
+                        </v-flex> -->
                     </v-layout>
                 </v-flex>
             </v-layout>
@@ -31,7 +43,11 @@
 import { mapActions, mapGetters } from "vuex";
 import axios from 'axios';
 export default {
+    // props:{
+    //     userObj
 
+    // },
+    props: ['userObj'],
     data() {
         return {
             model: {
@@ -41,51 +57,31 @@ export default {
 
                 }
             },
-
-            emailRules: [
-                v => !!v || 'E-mail is required',
-                v => /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(v) || 'E-mail must be valid',
-            ],
-            passwordRules: [
-                v => !!v || 'Password is required',
-                v => v.length >= 6 || "Min 6 characters",
-            ],
-
         };
     },
     computed:
     {
-        ...mapGetters(["getRegistrations"]),
+    },
+
+    mounted() {
+        this.model.user = this.userObj;
     },
     methods:
     {
-        ...mapActions(["Registrations","fetchListingData"]),
-fetchData()
-{
-  this.fetchListingData().then(
-      (response) => {
-        if (response.status == 200) {
-          console.log(response);
-        }
-      },
-      (error) => {
-        console.log("Error:", error);
-      }
-    );
-        newRegister() {
-      axios.post('https://jsonplaceholder.typicode.com/posts', this.model.user).then(res => {
-        console.log(res.data);
-        alert("Added Successfully");
+        ...mapActions(["Registrations"]),
+        editRecord() {
+            axios.put(`https://jsonplaceholder.typicode.com/posts/${this.userObj.id}`, this.model.user).then(res => {
+                console.log(res.data);
+                alert("Record Edited Successfully");
+            }).catch(function (error) {
+                alert(error);
 
-        this.model.user = {
-          title: '',
-          body: '',
-        }
-        this.errorList='';
-      }).catch(function(error){
-        alert(error);
-        
-      })
+            })
+        },
+
+        goBack() {
+            this.$emit('goBack',false);
+            //this.$router.push("/")
         },
     },
 };

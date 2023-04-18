@@ -16,11 +16,18 @@
                             <v-textarea v-model="model.user.body" name="input-7-1" outlined label="Body" auto-grow
                                 :rules="[() => !!model.user.body || 'This field is required']"></v-textarea>
                         </v-flex>
-                        <v-flex lg4 class=" mt-8 mr-n12">
+                        <!-- <v-flex lg4 class=" mt-8 mr-n12">
                             <v-btn :disabled="!model.user.title || !model.user.body" class="mt-n8 white--text" width="100" color="primary" link @click="newRegister">
                                 Save
                             </v-btn>
-                        </v-flex>
+                        </v-flex> -->
+
+                        <v-btn @click="goBack" class="me-4">
+                            Cancel
+                        </v-btn>
+                        <v-btn :disabled="!model.user.title || !model.user.body" @click="newRegister" class="white--text" color="primary">
+                            Save
+                        </v-btn>
                     </v-layout>
                 </v-flex>
             </v-layout>
@@ -61,24 +68,28 @@ export default {
     {
         ...mapActions(["Registrations"]),
         newRegister() {
-      axios.post('https://jsonplaceholder.typicode.com/posts', this.model.user).then(res => {
-        console.log(res.data);
-        alert("Added Successfully");
+            axios.post('https://jsonplaceholder.typicode.com/posts', this.model.user).then(res => {
+                console.log(res.data);
+                alert("Added Successfully");
 
-        this.model.user = {
-          title: '',
-          body: '',
-        }
-        this.errorList='';
-      }).catch(function(error){
-        alert(error);
-        
-      })
+                this.model.user = {
+                    title: '',
+                    body: '',
+                }
+                this.errorList = '';
+            }).catch(function (error) {
+                alert(error);
+
+            })
+        },
+        goBack() {
+            this.$router.push("/")
         },
     },
 };
 </script>
 <style scoped>
+
 .addSpaceRight {
     margin-right: 250px;
 }
