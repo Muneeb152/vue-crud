@@ -50,7 +50,6 @@ export default {
     {
         newRegister() {
             axios.post('https://jsonplaceholder.typicode.com/posts', this.model.user).then(res => {
-                console.log(res.data);
                 alert("Added Successfully");
 
                 this.model.user = {
