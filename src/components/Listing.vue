@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="!editComp">
-      <v-data-table :headers="headers" :items="posts" :options.sync="options" :loading="loading" sort-by="id"
+      <v-data-table :headers="headers" :items="getListingData" :options.sync="options" :loading="loading" sort-by="id"
         class="elevation-1 ma-3">
         <template v-slot:top>
           <!---------Tool Bar----------->
@@ -56,7 +56,6 @@ export default {
   name: "Listing",
   components: { Edit },
   data: () => ({
-    posts: [],
     options: {
       sortBy: 'id',
       descending: false,
@@ -96,7 +95,7 @@ export default {
   watch: {
     options: {
       handler() {
-        this.getPosts();
+        this.fetchData();
       },
       deep: true
     },
@@ -115,32 +114,21 @@ export default {
    
   },
   mounted() {
-    this.getPosts();
+    this.fetchData();
   },
   methods: {
     ...mapActions(["fetchListingData"]),
 
-    getPosts() {
-      this.loading = true;
-      axios.get(`https://jsonplaceholder.typicode.com/posts?_start=${(this.options.page - 1) * this.options.itemsPerPage}&_limit=${this.options.itemsPerPage}`)
-        .then(response => {
-          this.posts = response.data;
-        })
-        .catch(error => {
-          console.log(error);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
     fetchData() {
-      this.fetchListingData().then(
+      this.loading=true;
+      this.fetchListingData(this.options).then(
         (response) => {
           if (response.status == 200) {
-            console.log(response);
+            this.loading=false;
           }
         },
         (error) => {
+          this.loading=false;
           console.log("Error:", error);
         }
       );
@@ -154,6 +142,7 @@ export default {
     },
 
     deleteItem(item) {
+      this.delObj = {};
       this.delObj = item;
       this.dialogDelete = true;
     },
@@ -161,7 +150,7 @@ export default {
     deleteItemConfirm() {
       this.dialogDelete = false;
       axios.delete(`https://jsonplaceholder.typicode.com/posts/${this.delObj.id}`).then(res => {
-        this.getPosts();
+        this.fetchData();
         alert("User Deleted Successfully!");
 
 
@@ -191,7 +180,7 @@ export default {
     },
     handleEmit() {
       this.editComp = false;
-      this.getPosts();
+      this.fetchData();
     },
 
   },

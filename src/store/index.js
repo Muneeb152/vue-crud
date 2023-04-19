@@ -17,12 +17,12 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    fetchListingData({
-      commit
-    }) {
+    fetchListingData(
+      {commit}, options
+    ) {
       return new Promise((resolve, reject) => {
         axios
-          .get("https://jsonplaceholder.typicode.com/posts",)
+          .get(`https://jsonplaceholder.typicode.com/posts?_start=${(options.page - 1) * options.itemsPerPage}&_limit=${options.itemsPerPage}`)
           .then(
             (response) => {
               commit("setListingData", response.data);
