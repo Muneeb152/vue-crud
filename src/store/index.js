@@ -7,25 +7,32 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     ListingData: [],
+    totalCount: 0,
   },
   getters: {
     getListingData: (state) => state.ListingData,
+    getCount: (state) => state.totalCount,
+
   },
   mutations: {
     setListingData(state, payload) {
       state.ListingData = payload;
     },
+    setTotalCount(state, payload) {
+      state.totalCount = payload;
+    },
   },
   actions: {
     fetchListingData(
-      {commit}, options
+      { commit }, data
     ) {
       return new Promise((resolve, reject) => {
         axios
-          .get(`https://jsonplaceholder.typicode.com/posts?_start=${(options.page - 1) * options.itemsPerPage}&_limit=${options.itemsPerPage}`)
+          .get(`https://jsonplaceholder.typicode.com/posts?_start=${(data.currentPage - 1) * data.itemsPerPage}&_limit=${data.itemsPerPage}`)
           .then(
             (response) => {
               commit("setListingData", response.data);
+              commit("setTotalCount", parseInt(response.headers['x-total-count']));
               resolve(response);
             },
             (error) => {

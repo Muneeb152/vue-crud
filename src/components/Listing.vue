@@ -1,7 +1,9 @@
 <template>
   <div>
-    <div v-if="!editComp">
-      <v-data-table :headers="headers" :items="getListingData" :options.sync="options" :loading="loading" sort-by="id"
+    <v-container v-if="!editComp" fluid>
+      <v-data-table 
+      :headers="headers" :items="getListingData" :hide-default-footer="true" :loading="loading" sort-by="id"
+      :server-items-length="getCount"
         class="elevation-1 ma-3">
         <template v-slot:top>
           <!---------Tool Bar----------->
@@ -39,7 +41,17 @@
           </v-icon>
         </template>
       </v-data-table>
+      <div class="d-flex justify-center">
+      <v-pagination
+        v-model="currentPage"
+        :length="Math.ceil(getCount / itemsPerPage)"
+        :total-visible="5"
+        prev-icon="mdi-chevron-left"
+        next-icon="mdi-chevron-right"
+        @input="paginate"
+      ></v-pagination>
     </div>
+  </v-container>
     <div v-else>
       <Edit :userObj="userObj" @goBack="handleEmit" />
     </div>
@@ -56,12 +68,6 @@ export default {
   name: "Listing",
   components: { Edit },
   data: () => ({
-    options: {
-      sortBy: 'id',
-      descending: false,
-      page: 1,
-      itemsPerPage: 5
-    },
     loading: false,
     editComp: false,
     userObj: {
@@ -86,20 +92,15 @@ export default {
     donorId: -1,
     editedIndex: -1,
     donorDetail: {},
+    currentPage: 1,
+    itemsPerPage: 5,
   }),
 
   computed: {
-    ...mapGetters(["getListingData"]),
+    ...mapGetters(["getListingData","getCount"]),
   },
 
   watch: {
-    options: {
-      handler() {
-        this.fetchData();
-      },
-      deep: true
-    },
-
     dialog(val) {
       val || this.close();
     },
@@ -121,7 +122,11 @@ export default {
 
     fetchData() {
       this.loading=true;
-      this.fetchListingData(this.options).then(
+      let data={
+        currentPage:this.currentPage,
+        itemsPerPage:this.itemsPerPage,
+      }
+      this.fetchListingData(data).then(
         (response) => {
           if (response.status == 200) {
             this.loading=false;
@@ -180,6 +185,10 @@ export default {
     },
     handleEmit() {
       this.editComp = false;
+      this.fetchData();
+    },
+    paginate(page) {
+      this.currentPage = page;
       this.fetchData();
     },
 

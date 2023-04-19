@@ -16,7 +16,7 @@
                                 :rules="[() => !!model.user.body || 'This field is required']"></v-textarea>
                         </v-flex>
                         <v-btn @click="goBack" class="me-4">
-                            Cancel
+                            Back
                         </v-btn>
                         <v-btn :disabled="!model.user.title || !model.user.body" @click="newRegister" class="white--text" color="primary">
                             Save
