@@ -1,7 +1,8 @@
 <template>
   <div>
     <div v-if="!editComp">
-      <v-data-table :headers="headers" :items="getListingData" sort-by="id" class="elevation-1 ma-3">
+      <v-data-table :headers="headers" :items="posts" :options.sync="options" :loading="loading" sort-by="id"
+        class="elevation-1 ma-3">
         <template v-slot:top>
           <!---------Tool Bar----------->
           <v-toolbar color="primary" flat>
@@ -55,6 +56,14 @@ export default {
   name: "Listing",
   components: { Edit },
   data: () => ({
+    posts: [],
+    options: {
+      sortBy: 'id',
+      descending: false,
+      page: 1,
+      itemsPerPage: 5
+    },
+    loading: false,
     editComp: false,
     userObj: {
     },
@@ -78,20 +87,6 @@ export default {
     donorId: -1,
     editedIndex: -1,
     donorDetail: {},
-    editedItem: {
-      name: '',
-      calories: 0,
-      fat: 0,
-      carbs: 0,
-      protein: 0,
-    },
-    defaultItem: {
-      name: '',
-      calories: 0,
-      fat: 0,
-      carbs: 0,
-      protein: 0,
-    },
   }),
 
   computed: {
@@ -99,6 +94,13 @@ export default {
   },
 
   watch: {
+    options: {
+      handler() {
+        this.getPosts();
+      },
+      deep: true
+    },
+
     dialog(val) {
       val || this.close();
     },
@@ -109,12 +111,28 @@ export default {
       val || this.close();
     },
   },
+  created() {
+   
+  },
   mounted() {
-    this.fetchData();
+    this.getPosts();
   },
   methods: {
     ...mapActions(["fetchListingData"]),
 
+    getPosts() {
+      this.loading = true;
+      axios.get(`https://jsonplaceholder.typicode.com/posts?_start=${(this.options.page - 1) * this.options.itemsPerPage}&_limit=${this.options.itemsPerPage}`)
+        .then(response => {
+          this.posts = response.data;
+        })
+        .catch(error => {
+          console.log(error);
+        })
+        .finally(() => {
+          this.loading = false;
+        });
+    },
     fetchData() {
       this.fetchListingData().then(
         (response) => {
@@ -130,17 +148,12 @@ export default {
 
     },
     editItem(item) {
-      this.editedIndex = this.getListingData.indexOf(item)
-      this.editedItem = Object.assign({}, item);
       this.userObj = {};
       this.userObj = item;
       this.editComp = true;
-      //this.dialog = true
     },
 
     deleteItem(item) {
-      this.editedIndex = this.getListingData.indexOf(item)
-      this.editedItem = Object.assign({}, item);
       this.delObj = item;
       this.dialogDelete = true;
     },
@@ -148,7 +161,7 @@ export default {
     deleteItemConfirm() {
       this.dialogDelete = false;
       axios.delete(`https://jsonplaceholder.typicode.com/posts/${this.delObj.id}`).then(res => {
-        this.fetchData();
+        this.getPosts();
         alert("User Deleted Successfully!");
 
 
@@ -166,19 +179,11 @@ export default {
     },
 
     close() {
-      this.dialog = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
+      this.dialog = false;
     },
 
     closeDelete() {
-      this.dialogDelete = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
-        this.editedIndex = -1
-      })
+      this.dialogDelete = false;
     },
 
     createNew() {
@@ -186,7 +191,7 @@ export default {
     },
     handleEmit() {
       this.editComp = false;
-
+      this.getPosts();
     },
 
   },
